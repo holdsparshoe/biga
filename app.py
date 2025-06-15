@@ -1,16 +1,17 @@
 from flask import Flask, render_template
 import sqlite3
 import os
+from flask import render_template
 
 app = Flask(__name__)
-DB_PATH = 'biga.db'
+DB_PATH = 'bigas.db'
 
 def init_db():
     if not os.path.exists(DB_PATH):
         conn = sqlite3.connect(DB_PATH)
         c = conn.cursor()
         c.execute('''
-            CREATE TABLE biga (
+            CREATE TABLE bigas (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
                 description TEXT,
@@ -20,7 +21,7 @@ def init_db():
         ''')
         # Example data
         c.execute("""
-            INSERT INTO biga (name, description, image, labels) VALUES
+            INSERT INTO bigas (name, description, image, labels) VALUES
             ('Sample Biga', 'This is a sample biga.', 'sample.jpg', 'label1,label2')
         """)
         conn.commit()
@@ -30,7 +31,7 @@ def init_db():
 def gallery():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute('SELECT id, name, description, image, labels FROM biga')
+    c.execute('SELECT id, name, description, image, labels FROM bigas')
     bigas = [
         {
             'id': row[0],
@@ -44,14 +45,9 @@ def gallery():
     conn.close()
     return render_template('gallery.html', bigas=bigas)
 
+def home():
+    return render_template("gallery.html")
+
 if __name__ == '__main__':
     init_db()
     app.run(debug=True)
-
-# ...existing code...
-from flask import render_template
-
-@app.route("/")
-def home():
-    return render_template("gallery.html")
-# ...existing code...
