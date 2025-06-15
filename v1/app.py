@@ -47,3 +47,11 @@ def gallery():
 if __name__ == '__main__':
     init_db()
     app.run(debug=True)
+
+# ...existing code...
+from flask import render_template
+
+@app.route("/")
+def home():
+    return render_template("gallery.html")
+# ...existing code...
