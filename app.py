@@ -1,35 +1,54 @@
 from flask import Flask, render_template, request, redirect, url_for
-import sqlite3
+import psycopg2
+import urllib.parse as urlparse
 import os
-from flask import render_template
 
 app = Flask(__name__)
-DB_PATH = 'bigas.db'
+# Get database URL from environment variable (Render provides DATABASE_URL)
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+def get_db_connection():
+    if not DATABASE_URL:
+        raise Exception('DATABASE_URL environment variable not set')
+    result = urlparse.urlparse(DATABASE_URL)
+    username = result.username
+    password = result.password
+    database = result.path[1:]
+    hostname = result.hostname
+    port = result.port
+    return psycopg2.connect(
+        database=database,
+        user=username,
+        password=password,
+        host=hostname,
+        port=port
+    )
 
 def init_db():
-    if not os.path.exists(DB_PATH):
-        conn = sqlite3.connect(DB_PATH)
-        c = conn.cursor()
-        c.execute('''
-            CREATE TABLE bigas (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                description TEXT,
-                image TEXT,
-                labels TEXT
-            )
-        ''')
-        # Example data
+    conn = get_db_connection()
+    c = conn.cursor()
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS bigas (
+            id SERIAL PRIMARY KEY,
+            name TEXT NOT NULL,
+            description TEXT,
+            image TEXT,
+            labels TEXT
+        )
+    ''')
+    # Insert sample data only if table is empty
+    c.execute('SELECT COUNT(*) FROM bigas')
+    if c.fetchone()[0] == 0:
         c.execute("""
             INSERT INTO bigas (name, description, image, labels) VALUES
-            ('Sample Biga', 'This is a sample biga.', 'sample.jpg', 'label1,label2')
+            ('Sample Biga', 'This is a sample biga.', 'sample', 'label1,label2')
         """)
-        conn.commit()
-        conn.close()
+    conn.commit()
+    conn.close()
 
 @app.route('/')
 def gallery():
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     c = conn.cursor()
     c.execute('SELECT id, name, description, image, labels FROM bigas')
     bigas = [
@@ -52,9 +71,9 @@ def add_biga():
         description = request.form['description']
         image = request.form['image']
         labels = request.form['labels']
-        conn = sqlite3.connect(DB_PATH)
+        conn = get_db_connection()
         c = conn.cursor()
-        c.execute('INSERT INTO bigas (name, description, image, labels) VALUES (?, ?, ?, ?)',
+        c.execute('INSERT INTO bigas (name, description, image, labels) VALUES (%s, %s, %s, %s)',
                   (name, description, image, labels))
         conn.commit()
         conn.close()
