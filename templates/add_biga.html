@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Biga</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>Add a New Biga</h1>
+    <form method="post">
+        <label for="name">Name:</label><br>
+        <input type="text" id="name" name="name" required><br><br>
+        <label for="description">Description:</label><br>
+        <textarea id="description" name="description" required></textarea><br><br>
+        <label for="image">Image filename (without extension):</label><br>
+        <input type="text" id="image" name="image" required><br><br>
+        <label for="labels">Labels (comma separated):</label><br>
+        <input type="text" id="labels" name="labels"><br><br>
+        <button type="submit">Add Biga</button>
+    </form>
+    <p><a href="/">Back to Gallery</a></p>
+</body>
+</html>

@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect, url_for
 import sqlite3
 import os
 from flask import render_template
@@ -44,6 +44,22 @@ def gallery():
     ]
     conn.close()
     return render_template('gallery.html', bigas=bigas)
+
+@app.route('/add', methods=['GET', 'POST'])
+def add_biga():
+    if request.method == 'POST':
+        name = request.form['name']
+        description = request.form['description']
+        image = request.form['image']
+        labels = request.form['labels']
+        conn = sqlite3.connect(DB_PATH)
+        c = conn.cursor()
+        c.execute('INSERT INTO bigas (name, description, image, labels) VALUES (?, ?, ?, ?)',
+                  (name, description, image, labels))
+        conn.commit()
+        conn.close()
+        return redirect(url_for('gallery'))
+    return render_template('add_biga.html')
 
 def home():
     return render_template("gallery.html")

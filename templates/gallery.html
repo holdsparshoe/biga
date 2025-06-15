@@ -8,10 +8,11 @@
 </head>
 <body>
     <h1>Biga Gallery</h1>
+    <a href="/add" class="add-biga-btn">Add New Biga</a>
     <div class="gallery">
         {% for biga in bigas %}
         <div class="biga-card">
-            <img src="/static/{{ biga.image }}" alt="{{ biga.name }}">
+            <img src="/static/images/{{ biga.image }}.jpg" alt="{{ biga.name }}">
             <h2>{{ biga.name }}</h2>
             <p>{{ biga.description }}</p>
             <div class="labels">
