@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biga Gallery</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>Biga Gallery</h1>
+    <div class="gallery">
+        {% for biga in bigas %}
+        <div class="biga-card">
+            <img src="/static/{{ biga.image }}" alt="{{ biga.name }}">
+            <h2>{{ biga.name }}</h2>
+            <p>{{ biga.description }}</p>
+            <div class="labels">
+                {% for label in biga.labels %}
+                <span class="label">{{ label }}</span>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
