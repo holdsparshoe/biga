@@ -12,8 +12,10 @@
     <div class="gallery">
         {% for biga in bigas %}
         <div class="biga-card">
-            <img src="/static/images/{{ biga.image }}.jpg" alt="{{ biga.name }}">
-            <h2>{{ biga.name }}</h2>
+            <a href="/biga/{{ biga.id }}">
+                <img src="/static/images/{{ biga.image }}.jpg" alt="{{ biga.name }}">
+                <h2>{{ biga.name }}</h2>
+            </a>
             <p>{{ biga.description }}</p>
             <div class="labels">
                 {% for label in biga.labels %}

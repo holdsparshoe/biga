@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ biga.name }} - Details</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>{{ biga.name }}</h1>
+    <img src="/static/images/{{ biga.image }}.jpg" alt="{{ biga.name }}">
+    <h2>Description</h2>
+    <p>{{ biga.description }}</p>
+    <h2>Details</h2>
+    <div class="biga-details">
+        {% for paragraph in biga.details.split('\n') %}
+        <p>{{ paragraph }}</p>
+        {% endfor %}
+    </div>
+    <div class="labels">
+        {% for label in biga.labels %}
+        <span class="label">{{ label }}</span>
+        {% endfor %}
+    </div>
+    <hr>
+    <h2>Comments</h2>
+    <form method="post">
+        <label for="name">Name (optional):</label><br>
+        <input type="text" id="name" name="name" placeholder="Anonymous"><br><br>
+        <label for="text">Comment:</label><br>
+        <textarea id="text" name="text" required></textarea><br><br>
+        <button type="submit">Add Comment</button>
+    </form>
+    <div class="comments">
+        {% for comment in comments %}
+        <div class="comment">
+            <strong>{{ comment.name }}</strong> <em>{{ comment.created_at }}</em><br>
+            <p>{{ comment.text }}</p>
+        </div>
+        {% endfor %}
+    </div>
+    <p><a href="/">Back to Gallery</a></p>
+</body>
+</html>

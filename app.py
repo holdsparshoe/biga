@@ -31,17 +31,27 @@ def init_db():
         CREATE TABLE IF NOT EXISTS bigas (
             id SERIAL PRIMARY KEY,
             name TEXT NOT NULL,
-            description TEXT,
+            description TEXT DEFAULT '',
             image TEXT,
-            labels TEXT
+            labels TEXT,
+            details TEXT DEFAULT ''
+        )
+    ''')
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS comments (
+            id SERIAL PRIMARY KEY,
+            biga_id INTEGER REFERENCES bigas(id) ON DELETE CASCADE,
+            name TEXT,
+            text TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
     # Insert sample data only if table is empty
     c.execute('SELECT COUNT(*) FROM bigas')
     if c.fetchone()[0] == 0:
         c.execute("""
-            INSERT INTO bigas (name, description, image, labels) VALUES
-            ('Sample Biga', 'This is a sample biga.', 'sample', 'label1,label2')
+            INSERT INTO bigas (name, description, image, labels, details) VALUES
+            ('Sample Biga', 'This is a sample biga.', 'sample', 'label1,label2', 'This is a detailed paragraph about the sample biga.\nYou can add more paragraphs by using line breaks.')
         """)
     conn.commit()
     conn.close()
@@ -79,6 +89,45 @@ def add_biga():
         conn.close()
         return redirect(url_for('gallery'))
     return render_template('add_biga.html')
+
+@app.route('/biga/<int:biga_id>', methods=['GET', 'POST'])
+def biga_detail(biga_id):
+    conn = get_db_connection()
+    c = conn.cursor()
+    # Handle new comment submission
+    if request.method == 'POST':
+        name = request.form.get('name', '').strip() or None
+        text = request.form.get('text', '').strip()
+        if text:
+            c.execute('INSERT INTO comments (biga_id, name, text) VALUES (%s, %s, %s)',
+                      (biga_id, name, text))
+            conn.commit()
+    # Fetch biga details
+    c.execute('SELECT id, name, description, image, labels, details FROM bigas WHERE id = %s', (biga_id,))
+    row = c.fetchone()
+    if not row:
+        conn.close()
+        return 'Biga not found', 404
+    biga = {
+        'id': row[0],
+        'name': row[1],
+        'description': row[2],
+        'image': row[3],
+        'labels': row[4].split(',') if row[4] else [],
+        'details': row[5] or ''
+    }
+    # Fetch comments
+    c.execute('SELECT name, text, created_at FROM comments WHERE biga_id = %s ORDER BY created_at ASC', (biga_id,))
+    comments = [
+        {
+            'name': r[0] if r[0] else 'Anonymous',
+            'text': r[1],
+            'created_at': r[2]
+        }
+        for r in c.fetchall()
+    ]
+    conn.close()
+    return render_template('biga_detail.html', biga=biga, comments=comments)
 
 def home():
     return render_template("gallery.html")
