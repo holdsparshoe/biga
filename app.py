@@ -131,28 +131,20 @@ def biga_detail(biga_id):
 
 @app.route('/bookmarks')
 def bookmarks():
-    ids = request.args.get('ids', '')
-    try:
-        id_list = [int(i) for i in ids.split(',') if i.strip().isdigit()]
-    except Exception:
-        id_list = []
-    bigas = []
-    if id_list:
-        conn = get_db_connection()
-        c = conn.cursor()
-        sql = 'SELECT id, name, description, image, labels FROM bigas WHERE id = ANY(%s)'
-        c.execute(sql, (id_list,))
-        bigas = [
-            {
-                'id': row[0],
-                'name': row[1],
-                'description': row[2],
-                'image': row[3],
-                'labels': row[4].split(',') if row[4] else []
-            }
-            for row in c.fetchall()
-        ]
-        conn.close()
+    conn = get_db_connection()
+    c = conn.cursor()
+    c.execute('SELECT id, name, description, image, labels FROM bigas')
+    bigas = [
+        {
+            'id': row[0],
+            'name': row[1],
+            'description': row[2],
+            'image': row[3],
+            'labels': row[4].split(',') if row[4] else []
+        }
+        for row in c.fetchall()
+    ]
+    conn.close()
     return render_template('gallery.html', bigas=bigas, is_bookmarks=True)
 
 def home():

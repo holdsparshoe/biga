@@ -24,10 +24,9 @@
         {% endfor %}
     </div>
     <script>
-        // Bookmark logic for detail page
         const bigaId = {{ biga.id | tojson }};
         function getBookmarks() {
-            return JSON.parse(localStorage.getItem('bookmarkedBigas') || '[]');
+            return (JSON.parse(localStorage.getItem('bookmarkedBigas') || '[]')).map(Number);
         }
         function setBookmarks(ids) {
             localStorage.setItem('bookmarkedBigas', JSON.stringify(ids));
@@ -52,6 +51,9 @@
             }
             setBookmarks(bookmarks);
             updateBookmarkIcon();
+        });
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'bookmarkedBigas') updateBookmarkIcon();
         });
         updateBookmarkIcon();
     </script>
@@ -88,15 +90,4 @@
     </div>
     <p><a href="/">Back to Gallery</a></p>
 </body>
-</html>
-    <div class="comments">
-        {% for comment in comments %}
-        <div class="comment">
-            <strong>{{ comment.name }}</strong> <em>{{ comment.created_at }}</em><br>
-            <p>{{ comment.text }}</p>
-        </div>
-        {% endfor %}
-    </div>
-    <p><a href="/">Back to Gallery</a></p>
-</body>
-</html>
+

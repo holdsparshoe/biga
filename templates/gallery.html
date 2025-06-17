@@ -42,7 +42,8 @@
     <script>
     // Bookmark logic for gallery
     function getBookmarks() {
-        return JSON.parse(localStorage.getItem('bookmarkedBigas') || '[]');
+        // Always parse as int for comparison
+        return (JSON.parse(localStorage.getItem('bookmarkedBigas') || '[]')).map(Number);
     }
     function setBookmarks(ids) {
         localStorage.setItem('bookmarkedBigas', JSON.stringify(ids));
@@ -61,6 +62,15 @@
             }
         });
     }
+    function filterForBookmarks() {
+        {% if is_bookmarks %}
+        const bookmarks = getBookmarks();
+        document.querySelectorAll('.biga-card').forEach(card => {
+            const id = parseInt(card.getAttribute('data-biga-id'));
+            card.style.display = bookmarks.includes(id) ? '' : 'none';
+        });
+        {% endif %}
+    }
     document.querySelectorAll('.biga-card .bookmark-icon').forEach(icon => {
         icon.addEventListener('click', function(e) {
             e.stopPropagation();
@@ -76,7 +86,16 @@
             updateBookmarkIcons();
         });
     });
-    updateBookmarkIcons();
+    function syncAll() {
+        updateBookmarkIcons();
+        filterForBookmarks();
+    }
+    syncAll();
+
+    // Update icons/filter if bookmarks change in another tab or window
+    window.addEventListener('storage', function(e) {
+        if (e.key === 'bookmarkedBigas') syncAll();
+    });
 
     // Sidebar show/hide logic
     const sidebar = document.getElementById('sidebar');
@@ -227,4 +246,5 @@
     /* ...existing .bookmark-icon, .biga-card styles... */
     </style>
 </body>
+</html>
 </html>
